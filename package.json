@@ -1,0 +1,17 @@
+{
+  "name": "qpf",
+  "version": "1.0.0",
+  "description": "Grabbing QPF and making purdy maps",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "geojson-to-svg": "^1.0.3",
+    "mapshaper": "^0.4.63",
+    "request-promise": "^4.2.2",
+    "shapefile": "^0.6.6"
+  }
+}
