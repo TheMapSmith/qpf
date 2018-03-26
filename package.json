@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "geojson-to-svg": "^1.0.3",
-    "mapshaper": "^0.4.63",
+    "mapshaper": "^0.4.64",
     "request-promise": "^4.2.2",
     "shapefile": "^0.6.6"
   }
