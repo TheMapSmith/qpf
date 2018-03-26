@@ -1,6 +1,6 @@
 const mapshaper = require('mapshaper')
 const fs = require('fs');
-
+const tar = require('tar-fs')
 const jsftp = require("jsftp");
 
 const ftp = new jsftp({
@@ -9,23 +9,44 @@ const ftp = new jsftp({
   password: 'user@example.com'
 });
 
-fetchQPF()
+var qpfshp = '_data/97e2700.shp'
 
-function fetchQPF() {
-  ftp.get('/shapefiles/qpf/7day/QPF168hr_Day1-7_latest.tar', 'qpf.tar', err => {
-  if (err) {
-    console.log(err);
+fetchQPF(qpfshp)
+
+function fetchQPF(qpfshp) {
+  if (!fs.existsSync(qpfshp)) {
+
+    ftp.get('/shapefiles/qpf/7day/QPF168hr_Day1-7_latest.tar', 'qpf.tar', err => {
+      if (!err) {
+        let unpacker = fs.createReadStream('qpf.tar').pipe(tar.extract('_data/'))
+        let had_error = false
+
+        unpacker.on('error',function(err){
+          had_error = true
+          console.log(err)
+        })
+
+        unpacker.on('finish',function(){
+          if(!had_error){
+            processMap(qpfshp)
+          }
+        })
+      }
+      else {
+        console.log(err);
+      }
+    });
   }
   else {
-    console.log("File copied successfully!");
+    processMap(qpfshp)
   }
-});
 }
+
 
 function processMap(qpf) {
   var commandSlugs = []
 
-  commandSlugs.push('-i ${qpf}')
+  commandSlugs.push(`-i ${qpf}`)
   commandSlugs.push('-proj +proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs')
   // commandSlugs.push('-colorizer name=precip')
   // commandSlugs.push('colors=#21313D,#304D5D,#3C6C7E,#468C9E,#4EAFBE,#55D3DC,#5EF8F9,white')
