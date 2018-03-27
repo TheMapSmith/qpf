@@ -9,16 +9,26 @@ const ftp = new jsftp({
   password: 'user@example.com'
 });
 
-var qpfshp = '_data/97e2700.shp'
+getFilenames()
 
-fetchQPF(qpfshp)
+function getFilenames () {
+    ftp.ls('/shapefiles/qpf/7day/', (err,res) => {
+      if (err) {
+        console.log(err);
+      }
+      else {
+        var last = res.slice(-2)
+        fetchQPF(last[0].name)
+      }
+    })
+}
 
-function fetchQPF(qpfshp) {
-  if (!fs.existsSync(qpfshp)) {
-
-    ftp.get('/shapefiles/qpf/7day/QPF168hr_Day1-7_latest.tar', 'qpf.tar', err => {
+function fetchQPF(qpftar) {
+  var qpfpath = `_data/${qpftar}`
+  if (!fs.existsSync(qpfpath)) {
+    ftp.get(`/shapefiles/qpf/7day/${qpftar}`, qpfpath, err => {
       if (!err) {
-        let unpacker = fs.createReadStream('qpf.tar').pipe(tar.extract('_data/'))
+        let unpacker = fs.createReadStream(qpfpath).pipe(tar.extract('_data/'))
         let had_error = false
 
         unpacker.on('error',function(err){
@@ -28,7 +38,7 @@ function fetchQPF(qpfshp) {
 
         unpacker.on('finish',function(){
           if(!had_error){
-            processMap(qpfshp)
+            shpFilename(qpftar)
           }
         })
       }
@@ -38,8 +48,13 @@ function fetchQPF(qpfshp) {
     });
   }
   else {
-    processMap(qpfshp)
+    shpFilename(qpftar)
   }
+}
+
+function shpFilename (qpftar){
+  var qpfshp = '_data/' + qpftar.substr(0,3) + qpftar.substr(10,4) + '.shp'
+  processMap(qpfshp)
 }
 
 
